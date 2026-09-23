@@ -26,4 +26,7 @@
 /src/drivers_libxxx/Makefile
 /src/sexyal/Makefile
 /src/ss/Makefile
+.idea
+build
+.vscode
 

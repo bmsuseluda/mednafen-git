@@ -28,23 +28,7 @@
 
 #include "Joystick.h"
 
-#ifdef HAVE_SDL
- #include "Joystick_SDL.h"
-#endif
-
-#ifdef HAVE_LINUX_JOYSTICK
- #include "Joystick_Linux.h"
-#endif
-
-#ifdef WIN32
- #include "Joystick_DX5.h"
- #include "Joystick_XInput.h"
-#endif
-
-#ifdef DOS
- #include "Joystick_DOS_Standard.h"
- //#include "Joystick_DOS_SideWinder.h"
-#endif
+#include "Joystick_SDL.h"
 
 Joystick::Joystick() : id_09x(0), id{{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}}, num_axes(0), num_rel_axes(0), num_buttons(0)
 {
@@ -175,21 +159,7 @@ void Init(void)
 
  try
  {
-  #ifdef HAVE_LINUX_JOYSTICK
-  main_driver = JoystickDriver_Linux_New();
-  #elif defined(WIN32)
-  {
-   hicp_driver = JoystickDriver_XInput_New();
-   main_driver = JoystickDriver_DX5_New(hicp_driver != NULL && hicp_driver->NumJoysticks() > 0);
-  }
-  #elif defined(HAVE_SDL)
   main_driver = JoystickDriver_SDL_New();
-  #endif
-
-  if(hicp_driver != NULL)
-  {
-   JoystickDrivers.push_back(hicp_driver);
-  }
 
   if(main_driver != NULL)
   {
