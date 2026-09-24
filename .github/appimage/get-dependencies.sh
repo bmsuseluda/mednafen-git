@@ -31,3 +31,6 @@ get-debloated-pkgs --add-common --prefer-nano libdecor-mini
 	make distclean
 )
 
+mkdir -p ./AppDir
+cp -rv .github/appimage/AppDir/* ./AppDir
+

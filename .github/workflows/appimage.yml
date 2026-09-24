@@ -27,9 +27,9 @@ jobs:
       - name: Preparing Container
         uses: pkgforge-dev/anylinux-setup-action@0964f2258d6c93d1391359978dde081fd8b3c6af # v2
       - name: Install Dependencies
-        run: /bin/sh ./get-dependencies.sh
+        run: /bin/sh ./.github/appimage/get-dependencies.sh
       - name: Make AppImage
-        run: /bin/sh ./make-appimage.sh
+        run: /bin/sh ./.github/appimage/make-appimage.sh
       - name: Upload artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:

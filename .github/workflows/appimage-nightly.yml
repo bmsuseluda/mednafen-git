@@ -3,12 +3,12 @@ concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
 on:
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# comment these two out to enable nightly builds, This sets the variable DEVEL_RELEASE=1 for  #
-# get-dependencies.sh to make a nightly release, this will make a release with 'nightly' tag  #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#  schedule:
-#    - cron: "0 5 1/2 * *" # We default to rebuilding nightly every 2 days, change this to your liking
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # comment these two out to enable nightly builds, This sets the variable DEVEL_RELEASE=1 for  #
+  # get-dependencies.sh to make a nightly release, this will make a release with 'nightly' tag  #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  #  schedule:
+  #    - cron: "0 5 1/2 * *" # We default to rebuilding nightly every 2 days, change this to your liking
   workflow_dispatch: {}
 
 jobs:
@@ -31,9 +31,9 @@ jobs:
       - name: Preparing Container
         uses: pkgforge-dev/anylinux-setup-action@0964f2258d6c93d1391359978dde081fd8b3c6af # v2
       - name: Install Dependencies
-        run: DEVEL_RELEASE=1 /bin/sh ./get-dependencies.sh
+        run: DEVEL_RELEASE=1 /bin/sh ./.github/appimage/get-dependencies.sh
       - name: Make AppImage
-        run: DEVEL_RELEASE=1 /bin/sh ./make-appimage.sh
+        run: DEVEL_RELEASE=1 /bin/sh ./.github/appimage/make-appimage.sh
       - name: Upload artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
