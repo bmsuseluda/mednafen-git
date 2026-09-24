@@ -9,15 +9,6 @@ libmdfnsdl_a_SOURCES = main.cpp args.cpp help.cpp ers.cpp sound.cpp netplay.cpp
 libmdfnsdl_a_SOURCES += input.cpp mouse.cpp keyboard.cpp
 libmdfnsdl_a_SOURCES += Joystick.cpp Joystick_SDL.cpp
 
-if HAVE_LINUX_JOYSTICK
-libmdfnsdl_a_SOURCES += Joystick_Linux.cpp
-endif
-
-if WIN32
-libmdfnsdl_a_SOURCES += Joystick_XInput.cpp
-libmdfnsdl_a_SOURCES += Joystick_DX5.cpp
-endif
-
 libmdfnsdl_a_SOURCES += TextEntry.cpp console.cpp cheat.cpp fps.cpp video-state.cpp remote.cpp rmdui.cpp
 
 libmdfnsdl_a_SOURCES += opengl.cpp shader.cpp nongl.cpp nnx.cpp video.cpp
