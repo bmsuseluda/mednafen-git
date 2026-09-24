@@ -77,23 +77,15 @@ Joystick_SDL::Joystick_SDL(unsigned index) : sdl_joy(NULL), sdl_haptic(NULL), ef
 
   Calc09xID(sdl_num_axes, sdl_num_balls, sdl_num_hats, sdl_num_buttons);
   {
-   //SDL_JoystickGUID guid = SDL_JoystickGetGUID(sdl_joy);
-   //memcpy(&id[0], guid.data, 16);
-   //
-   // Don't use SDL's GUID, as it's just equivalent to part of the joystick name on many platforms.
-   // 
+   SDL_JoystickGUID guid = SDL_JoystickGetGUID(sdl_joy);
+   memcpy(&id[0], guid.data, 16);
+
    md5_context h;
    uint8 d[16];
 
    h.starts();
    h.update((const uint8*)name.data(), name.size());
    h.finish(d);
-   memcpy(&id[0], d, 8);
-
-   MDFN_en16msb(&id[ 8], sdl_num_axes);
-   MDFN_en16msb(&id[10], sdl_num_buttons);
-   MDFN_en16msb(&id[12], sdl_num_hats);
-   MDFN_en16msb(&id[14], sdl_num_balls);
   }
   num_axes = sdl_num_axes;
   num_rel_axes = sdl_num_balls * 2;
