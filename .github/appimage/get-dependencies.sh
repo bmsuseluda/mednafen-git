@@ -10,6 +10,7 @@ pacman -Syu --noconfirm \
 	cmake           \
 	gcc-libs        \
 	libao           \
+	libpulse        \
 	libx11          \
 	libxrandr       \
 	libxss          \
