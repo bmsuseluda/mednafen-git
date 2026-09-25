@@ -10,15 +10,12 @@ pacman -Syu --noconfirm \
 	cmake           \
 	gcc-libs        \
 	libao           \
-	libpulse        \
 	libx11          \
 	libxrandr       \
 	libxss          \
 	openal          \
 	pipewire-audio  \
 	pkgconf         \
-	pulseaudio      \
- 	pulseaudio-alsa \
 	sdl2            \
 	zlib            \
 
