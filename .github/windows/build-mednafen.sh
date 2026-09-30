@@ -11,6 +11,8 @@ touch aclocal.m4
 touch configure include/config.h.in
 touch Makefile.in intl/Makefile.in src/Makefile.in
 
+# Without this, zlib's gztell/gztell64 aren't aliased and tests.cpp fails to compile.
+CPPFLAGS="-D_FILE_OFFSET_BITS=64 ${CPPFLAGS:-}" \
 ./configure --host="$HOST" --disable-alsa --disable-jack --disable-dependency-tracking
 make -j"$(nproc)"
 
