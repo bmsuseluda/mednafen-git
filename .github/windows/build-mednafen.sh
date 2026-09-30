@@ -11,8 +11,13 @@ touch aclocal.m4
 touch configure include/config.h.in
 touch Makefile.in intl/Makefile.in src/Makefile.in
 
+# This MSYS2 mingw-w64-crt snapshot dropped the internal `mingw_app_type` global
+# that main.cpp expects, so provide it ourselves and link it in via LIBS.
+echo 'int mingw_app_type;' | "$HOST-gcc" -x c -c -o mingw_app_type_stub.o -
+
 # Without this, zlib's gztell/gztell64 aren't aliased and tests.cpp fails to compile.
 CPPFLAGS="-D_FILE_OFFSET_BITS=64 ${CPPFLAGS:-}" \
+LIBS="$PWD/mingw_app_type_stub.o ${LIBS:-}" \
 ./configure --host="$HOST" --disable-alsa --disable-jack --disable-dependency-tracking
 make -j"$(nproc)"
 
