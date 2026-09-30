@@ -30,13 +30,14 @@ jobs:
           update: true
           suppress-deprecation-warnings: true
           install: >-
+            make
+            zip
             ${{ matrix.prefix }}-toolchain
             ${{ matrix.prefix }}-zlib
             ${{ matrix.prefix }}-sdl2-compat
             ${{ matrix.prefix }}-sdl3
             ${{ matrix.prefix }}-flac
             ${{ matrix.prefix }}-libiconv
-            zip
       - name: Configure, Build & Package
         run: bash .github/windows/build-mednafen.sh ${{ matrix.arch }}-w64-mingw32
       - name: Upload artifact
