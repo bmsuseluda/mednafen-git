@@ -39,9 +39,17 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: AppImage-*
           merge-multiple: true
+      - name: Determine version
+        id: version
+        run: echo "version=$(head -n 1 Documentation/modules.def)" >> "$GITHUB_OUTPUT"
       - name: Release AppImage
-        uses: pkgforge-dev/make-stable-appimage-release@4ed3d48ccb065352b6e6c0db6d39885b201c54a0 #v1.1
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: "Mednafen_Emulator: ${{ steps.version.outputs.version }}"
+          files: "*.AppImage*"

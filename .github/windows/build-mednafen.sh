@@ -24,6 +24,8 @@ make -j"$(nproc)"
 mkdir -p "$PKGDIR"
 cp src/mednafen.exe "$PKGDIR/"
 ldd src/mednafen.exe | grep -i '/mingw' | awk '{print $3}' | sort -u | xargs -I{} cp -v {} "$PKGDIR/"
+# sdl2-compat loads SDL3 via LoadLibrary at runtime, so it never shows up in ldd's output above.
+cp -v "$MINGW_PREFIX"/bin/SDL3.dll "$PKGDIR/"
 cp COPYING ChangeLog "$PKGDIR/"
 cp Documentation/*.html Documentation/*.css Documentation/*.txt "$PKGDIR/" 2>/dev/null || true
 
