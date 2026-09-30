@@ -16973,6 +16973,12 @@ CXXFLAGS="$ac_save_CXXFLAGS"
 
 NOPICPIE_FLAGS=""
 NOPICPIE_LDFLAGS=""
+case "$host_os" in
+mingw*)
+	# Preserve MinGW's native code generation and ASLR defaults.  In particular,
+	# GCC translates -no-pie to --disable-dynamicbase on this target.
+	;;
+*)
 
 
 
@@ -17453,6 +17459,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
 	CXXFLAGS="$ac_save_CXXFLAGS"
 	LDFLAGS="$ac_save_LDFLAGS"
 fi
+	;;
+esac
 
 #################################
 #
@@ -22166,7 +22174,11 @@ else
   ARCH_X86_64_FALSE=
 fi
 
-
+		# MinGW's default medium PIC model provides indirect DLL data references.
+		# The small model can overflow 32-bit runtime pseudo-relocations.
+		case "$host_os" in
+			mingw*) ;;
+			*)
 
 
 
@@ -22248,7 +22260,8 @@ esac
 fi
 
 done
-
+ ;;
+		esac
 		;;
 
 	i*86)

@@ -19,8 +19,8 @@ jobs:
       matrix:
         include:
           - arch: x86_64
-            msystem: MINGW64
-            prefix: mingw-w64-x86_64
+            msystem: UCRT64
+            prefix: mingw-w64-ucrt-x86_64
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Set up MSYS2
@@ -28,7 +28,6 @@ jobs:
         with:
           msystem: ${{ matrix.msystem }}
           update: true
-          suppress-deprecation-warnings: true
           install: >-
             make
             zip
@@ -40,6 +39,9 @@ jobs:
             ${{ matrix.prefix }}-libiconv
       - name: Configure, Build & Package
         run: bash .github/windows/build-mednafen.sh ${{ matrix.arch }}-w64-mingw32
+      - name: Smoke test packaged executable
+        shell: pwsh
+        run: ./.github/windows/smoke-test.ps1
       - name: Upload artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -64,5 +66,5 @@ jobs:
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          name: "Mednafen_Emulator: ${{ steps.version.outputs.version }}"
+          name: "${{ steps.version.outputs.version }}"
           files: "*.zip"

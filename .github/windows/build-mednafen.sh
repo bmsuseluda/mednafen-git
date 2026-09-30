@@ -1,43 +1,41 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-set -eu
+set -euo pipefail
 
 HOST="${1:?Usage: $0 <host-triplet>}"
+: "${MINGW_PREFIX:?Run this script in an MSYS2 MinGW environment}"
 ARCH="${HOST%%-*}"
 VERSION=$(head -n 1 Documentation/modules.def)
 PKGDIR="mednafen-$VERSION-$ARCH"
 
+# Use committed Autotools outputs without regenerating them on the runner.
 touch aclocal.m4
 touch configure include/config.h.in
 touch Makefile.in intl/Makefile.in src/Makefile.in
 
-# This MSYS2 mingw-w64-crt snapshot dropped the internal `mingw_app_type` global
-# that main.cpp expects, so provide it ourselves and link it in via LIBS.
-echo 'int mingw_app_type;' | "$HOST-gcc" -x c -c -o mingw_app_type_stub.o -
+# Keep static compiler runtimes as a distribution policy until dynamic runtime
+# linking has been validated on Windows with the corrected MinGW code model.
+# Whole-archive handles references from runtime libraries added later by GCC.
+RUNTIME_FLAGS="-static-libgcc -static-libstdc++ -Wl,--push-state,-Bstatic,--whole-archive -lwinpthread -Wl,--pop-state"
+# Explicit hardening policy; configure no longer disables MinGW's ASLR defaults.
+HARDENING_FLAGS="-Wl,--dynamicbase,--nxcompat"
+if [[ "$ARCH" == x86_64 ]]; then
+	HARDENING_FLAGS+=" -Wl,--high-entropy-va"
+fi
 
-# Without --dynamicbase/--high-entropy-va, the exe stays pinned at its low
-# fixed preferred base while system DLLs load at high, ASLR'd addresses; the
-# resulting distance overflows the 32-bit auto-import pseudo-relocations,
-# crashing at startup with "pseudo relocation ... out of range".
-# Even with those flags, libgcc_s/libstdc++/libwinpthread still export DATA
-# symbols (vtables, typeinfo, TLS globals) that get auto-imported across the
-# DLL boundary via the same 32-bit fixups, so statically link those in too.
-# Without _FILE_OFFSET_BITS=64, zlib's gztell/gztell64 aren't aliased and tests.cpp fails to compile.
-# Without UNICODE/_UNICODE, main.cpp thinks this is the special Win9x/Me ANSI
-# build and refuses to run on NT-based (i.e. any modern) Windows.
+# Large-file zlib aliases and the modern Windows Unicode API build profile.
 CPPFLAGS="-D_FILE_OFFSET_BITS=64 -DUNICODE=1 -D_UNICODE=1 ${CPPFLAGS:-}" \
-LIBS="$PWD/mingw_app_type_stub.o ${LIBS:-}" \
-LDFLAGS="-static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive -Wl,-Bdynamic -Wl,--dynamicbase -Wl,--high-entropy-va -Wl,--nxcompat ${LDFLAGS:-}" \
+LDFLAGS="$RUNTIME_FLAGS $HARDENING_FLAGS ${LDFLAGS:-}" \
 ./configure --host="$HOST" --disable-alsa --disable-jack --disable-dependency-tracking
 make -j"$(nproc)"
 
 mkdir -p "$PKGDIR"
 cp src/mednafen.exe "$PKGDIR/"
-ldd src/mednafen.exe | grep -i '/mingw' | awk '{print $3}' | sort -u | xargs -I{} cp -v {} "$PKGDIR/"
-# sdl2-compat loads SDL3 via LoadLibrary at runtime, so it never shows up in ldd's output above.
+ldd src/mednafen.exe | grep -iF "$MINGW_PREFIX/bin/" | awk '{print $3}' | sort -u | xargs -I{} cp -v {} "$PKGDIR/"
+# sdl2-compat loads SDL3 via LoadLibrary, so it does not appear in ldd's output.
 cp -v "$MINGW_PREFIX"/bin/SDL3.dll "$PKGDIR/"
 cp COPYING ChangeLog "$PKGDIR/"
-cp Documentation/*.html Documentation/*.css Documentation/*.txt "$PKGDIR/" 2>/dev/null || true
+cp Documentation/*.html Documentation/*.css Documentation/*.txt "$PKGDIR/"
 
 STRIP="$HOST-strip"
 command -v "$STRIP" >/dev/null 2>&1 || STRIP=strip

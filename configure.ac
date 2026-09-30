@@ -168,6 +168,12 @@ dnl simplicity of the test program and some other compiler flag usage difference
 dnl
 NOPICPIE_FLAGS=""
 NOPICPIE_LDFLAGS=""
+case "$host_os" in
+mingw*)
+	# Preserve MinGW's native code generation and ASLR defaults.  In particular,
+	# GCC translates -no-pie to --disable-dynamicbase on this target.
+	;;
+*)
 AX_APPEND_COMPILE_FLAGS([-fno-pic], NOPICPIE_FLAGS)
 AX_APPEND_COMPILE_FLAGS([-fno-pie], NOPICPIE_FLAGS)
 AX_APPEND_COMPILE_FLAGS([-fno-PIC], NOPICPIE_FLAGS)
@@ -201,6 +207,8 @@ if test "x$NOPICPIE_FLAGS" != "x" || test "x$NOPICPIE_LDFLAGS" != "x"; then
 	CXXFLAGS="$ac_save_CXXFLAGS"
 	LDFLAGS="$ac_save_LDFLAGS"
 fi
+	;;
+esac
 
 #################################
 #
@@ -925,7 +933,12 @@ case "$host_cpu" in
 	        AM_CONDITIONAL(ARCH_X86, true)
                 AC_DEFINE([ARCH_X86_64], [1], [Define if we are compiling for 64-bit x86 architectures.])
                 AM_CONDITIONAL(ARCH_X86_64, true)
-		AX_APPEND_COMPILE_FLAGS([-mcmodel=small], CODEGEN_FLAGS)
+		# MinGW's default medium PIC model provides indirect DLL data references.
+		# The small model can overflow 32-bit runtime pseudo-relocations.
+		case "$host_os" in
+			mingw*) ;;
+			*) AX_APPEND_COMPILE_FLAGS([-mcmodel=small], CODEGEN_FLAGS) ;;
+		esac
 		;;
 
 	i*86)
