@@ -7,7 +7,7 @@ ARCH="${HOST%%-*}"
 VERSION=$(head -n 1 Documentation/modules.def)
 PKGDIR="mednafen-$VERSION-$ARCH"
 
-./configure --host="$HOST" --disable-alsa --disable-jack
+./configure --host="$HOST" --disable-alsa --disable-jack --disable-dependency-tracking
 make -j"$(nproc)"
 
 mkdir -p "$PKGDIR"
