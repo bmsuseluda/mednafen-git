@@ -7,6 +7,10 @@ ARCH="${HOST%%-*}"
 VERSION=$(head -n 1 Documentation/modules.def)
 PKGDIR="mednafen-$VERSION-$ARCH"
 
+touch aclocal.m4
+touch configure include/config.h.in
+touch Makefile.in intl/Makefile.in src/Makefile.in
+
 ./configure --host="$HOST" --disable-alsa --disable-jack --disable-dependency-tracking
 make -j"$(nproc)"
 
