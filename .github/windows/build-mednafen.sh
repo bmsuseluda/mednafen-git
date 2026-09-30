@@ -23,7 +23,9 @@ echo 'int mingw_app_type;' | "$HOST-gcc" -x c -c -o mingw_app_type_stub.o -
 # symbols (vtables, typeinfo, TLS globals) that get auto-imported across the
 # DLL boundary via the same 32-bit fixups, so statically link those in too.
 # Without _FILE_OFFSET_BITS=64, zlib's gztell/gztell64 aren't aliased and tests.cpp fails to compile.
-CPPFLAGS="-D_FILE_OFFSET_BITS=64 ${CPPFLAGS:-}" \
+# Without UNICODE/_UNICODE, main.cpp thinks this is the special Win9x/Me ANSI
+# build and refuses to run on NT-based (i.e. any modern) Windows.
+CPPFLAGS="-D_FILE_OFFSET_BITS=64 -DUNICODE=1 -D_UNICODE=1 ${CPPFLAGS:-}" \
 LIBS="$PWD/mingw_app_type_stub.o ${LIBS:-}" \
 LDFLAGS="-static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive -Wl,-Bdynamic -Wl,--dynamicbase -Wl,--high-entropy-va -Wl,--nxcompat ${LDFLAGS:-}" \
 ./configure --host="$HOST" --disable-alsa --disable-jack --disable-dependency-tracking
