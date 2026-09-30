@@ -3,9 +3,10 @@
 set -eu
 
 ARCH=$(uname -m)
-VERSION=$(mednafen | awk '{print $3; exit}') # example command to get version of application here
+VERSION=$(head -n 1 Documentation/modules.def)
 export ARCH VERSION
 export OUTPATH=./dist
+export OUTNAME=mednafen-"$VERSION"-"$ARCH".AppImage
 export ADD_HOOKS="self-updater.hook"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
 export DEPLOY_OPENGL=1

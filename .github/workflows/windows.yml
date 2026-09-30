@@ -1,0 +1,63 @@
+name: Windows
+concurrency:
+  group: build-windows-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  schedule:
+    - cron: 0 0 1 */2 * # We default to rebuilding every 21 days, change this to your liking
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    name: "Windows Build (${{ matrix.arch }})"
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            msystem: MINGW64
+            prefix: mingw-w64-x86_64
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+        with:
+          msystem: ${{ matrix.msystem }}
+          update: true
+          suppress-deprecation-warnings: true
+          install: >-
+            ${{ matrix.prefix }}-toolchain
+            ${{ matrix.prefix }}-zlib
+            ${{ matrix.prefix }}-sdl2-compat
+            ${{ matrix.prefix }}-sdl3
+            ${{ matrix.prefix }}-flac
+            ${{ matrix.prefix }}-libiconv
+            zip
+      - name: Configure, Build & Package
+        run: bash .github/windows/build-mednafen.sh ${{ matrix.arch }}-w64-mingw32
+      - name: Upload artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: mednafen-windows-${{ matrix.arch }}
+          path: dist
+
+  release:
+    if: ${{ github.ref_name == 'master' }}
+    needs: [build]
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: mednafen-windows-*
+          merge-multiple: true
+      - name: Release Windows build
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          tag_name: windows-build
+          name: Windows Build
+          files: "*.zip"
