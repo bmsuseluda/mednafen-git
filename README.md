@@ -1,3 +1,9 @@
+# Mednafen-SDL3
+
+This is a fork of the [Mednafen](https://mednafen.github.io/) multi-system emulator that focuses on upgrading to [SDL3](https://github.com/libsdl-org) via [SDL2-compat](https://github.com/libsdl-org/sdl2-compat).
+Gamepad handling was modified to rely exclusively on SDL for better compatibility.
+
+## Original Readme
 -------------------------------------------------------------------------------
  Compilation Notes:
 -------------------------------------------------------------------------------
